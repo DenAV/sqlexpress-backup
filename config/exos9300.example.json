@@ -1,0 +1,24 @@
+{
+  "SchemaVersion": 1,
+  "ProjectId": "exos9300",
+  "Instance": ".\\SQLEXPRESS2014",
+  "BackupRoot": "D:\\SQLBackups",
+  "LogRoot": "C:\\ProgramData\\SqlExpressBackup\\Logs",
+  "Account": "SYSTEM",
+  "ConnectTimeoutSeconds": 30,
+  "CommandTimeoutSeconds": 3600,
+  "LockTimeoutSeconds": 300,
+  "RetentionDays": 30,
+  "MinimumFullBackups": 2,
+  "CleanupEnabled": true,
+  "Databases": [
+    { "Id": "exos9300", "Name": "Exos9300" }
+  ],
+  "Jobs": [
+    { "Id": "full", "Kind": "Full", "Enabled": true, "Schedule": { "Mode": "Daily", "At": "03:15" } },
+    { "Id": "log", "Kind": "Log", "Enabled": true, "Schedule": { "Mode": "Interval", "EveryMinutes": 15 } },
+    { "Id": "exos-log-tables", "Kind": "Procedure", "Enabled": false, "ProcedureSchema": "", "ProcedureName": "libShrinkExosLogTables", "Schedule": { "Mode": "Daily", "At": "01:20" } },
+    { "Id": "exos-indexes", "Kind": "Procedure", "Enabled": false, "ProcedureSchema": "", "ProcedureName": "libIndexesDefrag", "Schedule": { "Mode": "Daily", "At": "01:40" } },
+    { "Id": "checkdb", "Kind": "CheckDb", "Enabled": false, "Schedule": { "Mode": "Weekly", "At": "05:00", "Days": ["Sunday"] } }
+  ]
+}
