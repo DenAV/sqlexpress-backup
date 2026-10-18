@@ -1,0 +1,53 @@
+name: Validate
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'fix/**'
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  windows-powershell:
+    name: Windows PowerShell 5.1
+    runs-on: windows-2022
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Check promotion source
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
+          SOURCE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          TARGET_REPOSITORY: ${{ github.repository }}
+        run: |
+          if ($env:SOURCE_BRANCH -ne 'develop' -or $env:SOURCE_REPOSITORY -ne $env:TARGET_REPOSITORY) {
+              throw 'Changes to main must be promoted from develop in this repository.'
+          }
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install pinned test dependencies
+        run: |
+          $ErrorActionPreference = 'Stop'
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          Install-Module Pester -RequiredVersion 5.6.1 -Repository PSGallery -Scope CurrentUser -Force -SkipPublisherCheck
+          Install-Module PSScriptAnalyzer -RequiredVersion 1.22.0 -Repository PSGallery -Scope CurrentUser -Force
+      - name: Run checks
+        run: |
+          if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -ne 1) {
+              throw 'This job must use Windows PowerShell 5.1.'
+          }
+          .\tests\Invoke-Checks.ps1
