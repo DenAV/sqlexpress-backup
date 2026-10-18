@@ -1,0 +1,13 @@
+*.local.json
+logs/
+TestResults/
+*.bak
+*.trn
+*.backup.json
+*.partial
+.env
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+exos9300-db-backup/
